@@ -1,0 +1,10 @@
+.idea
+.DS_Store
+db.properties
+application.properties
+*.iml
+
+.gradle/
+build/
+
+target/
