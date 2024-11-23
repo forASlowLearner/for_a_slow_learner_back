@@ -11,7 +11,8 @@ public enum SuccessCode {
     //200 OK
 
     //201 CREATED
-    LOGIN_SUCCESSED(HttpStatus.OK, "로그인에 성공했습니다.");
+    LOGIN_SUCCESSED(HttpStatus.OK, "로그인에 성공했습니다."),
+    SAVE_INIT_ANSWER_SUCCESSED(HttpStatus.OK, "초기 회원 정보 저장에 성공했습니다");
     //202 ACCEPTED
 
     //204 NO RESPONSE
