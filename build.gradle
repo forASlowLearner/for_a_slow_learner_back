@@ -21,6 +21,9 @@ configurations {
 
 repositories {
 	mavenCentral()
+	//Spring AI
+	maven { url 'https://repo.spring.io/milestone' } //마일스톤 추가
+	maven { url 'https://repo.spring.io/snapshot' } //스냅샷 저장소 추가
 }
 
 dependencies {
@@ -32,6 +35,13 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// MySQL JDBC 드라이버
+	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+
+	//Spring AI
+	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-SNAPSHOT'
+	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
 }
 
 tasks.named('test') {
