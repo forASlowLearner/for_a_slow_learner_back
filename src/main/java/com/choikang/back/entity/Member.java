@@ -6,9 +6,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDate;
 import lombok.Data;
+import lombok.Getter;
 
 @Data
 @Entity
+@Getter
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,4 +27,5 @@ public class Member {
     private int score;
 
     private LocalDate signUpDate;
+
 }
