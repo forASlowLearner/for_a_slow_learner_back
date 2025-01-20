@@ -1,6 +1,8 @@
 package com.choikang.back.service;
 
+import com.choikang.back.dto.AIChatDTO;
 import com.choikang.back.dto.AIChatResponse;
+import com.choikang.back.dto.AIChatSaveToggleResponse;
 import com.choikang.back.entity.AIChat;
 import com.choikang.back.entity.Member;
 import com.choikang.back.repository.AIChatRepository;
@@ -11,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AIChatService {
@@ -19,8 +24,6 @@ public class AIChatService {
 
     @Autowired
     private AIChatRepository aiChatRepository;
-
-
 
     /**
      * 사용자의 질문을 받아 GPT API에 전송하고,
@@ -92,7 +95,7 @@ public class AIChatService {
                 .userQuestion(userQuestion)
                 .aiResponseText(answer)
                 .questionDate(LocalDate.now())
-                .isSavedQuestion(true)
+                .isSavedQuestion(false)
                 .category(keyword)
                 .summary(summary)
                 .member(testMember)   // 실제로 memberRepository를 통해 찾은 회원 엔티티가 있을 경우 세팅
@@ -108,5 +111,76 @@ public class AIChatService {
         response.setSummary_message(summary);
 
         return response;
+    }
+
+    public AIChatSaveToggleResponse toggleFavorite(Integer memberId, Integer aiChatId) {
+        System.out.println("토글 들어와짐?");
+
+        System.out.println("Received aiChatId: " + aiChatId);
+        if (aiChatId == null) {
+            throw new IllegalArgumentException("aiChatId cannot be null");
+        }
+
+        // 1) AIChat 엔티티 조회
+        AIChat aiChat = aiChatRepository.findById(aiChatId)
+                .orElseThrow(() -> new RuntimeException("AIChat not found"));
+
+
+        aiChat.setIsSavedQuestion(!aiChat.isSavedQuestion());
+
+        // 3) DB 업데이트
+        AIChat updatedChat = aiChatRepository.save(aiChat);
+
+        // 4) 응답 DTO 구성
+        AIChatSaveToggleResponse response = new AIChatSaveToggleResponse();
+        if (aiChat.isSavedQuestion()==true) {
+            response.setMessage("즐겨찾기 등록에 성공했습니다");
+        } else {
+            response.setMessage("즐겨찾기 해제에 성공했습니다");
+        }
+        response.setCategory(updatedChat.getCategory());
+        response.setAiChatId(updatedChat.getAiChatId());
+
+        return response;
+    }
+
+    public Integer getLatestChatId(Integer memberId) {
+        // 가장 최근 ai_chat_id 조회
+        AIChat latestChat = aiChatRepository.findTopByMember_MemberIdOrderByAiChatIdDesc(memberId);
+
+        // 대화가 없는 경우 null 반환
+        return latestChat != null ? latestChat.getAiChatId() : null;
+    }
+
+    public List<AIChatDTO> getChatHistory(Integer memberId, Integer aiChatId) {
+        // 데이터베이스에서 조건에 맞는 대화 내역 조회
+        List<AIChat> chats = aiChatRepository.findTop10ByMember_MemberIdAndAiChatIdLessThanEqualOrderByAiChatIdAsc(
+                memberId,
+                aiChatId
+        );
+
+        // 조회 결과를 DTO 리스트로 변환
+        List<AIChatDTO> responseList = new ArrayList<>();
+        for (AIChat chat : chats) {
+            AIChatDTO dto = new AIChatDTO();
+            dto.setAi_chat_id(chat.getAiChatId());
+            dto.setUser_question(chat.getUserQuestion());
+            dto.setAi_response_text(chat.getAiResponseText());
+            dto.setIs_saved_question(chat.isSavedQuestion() ? 1 : 0);
+            responseList.add(dto);
+        }
+
+        return responseList;
+    }
+
+    // memberId와 category(문자열)을 이용해 AIChat 목록을 조회합니다.
+    public List<AIChat> findByMemberIdAndCategory(Long memberId, String category) {
+        return aiChatRepository.findAllByMemberMemberIdAndCategory(memberId, category);
+    }
+
+
+    // 새로 추가: 특정 회원의 (중복 없는) 카테고리 목록 조회
+    public List<String> getAllDistinctCategories(Integer memberId) {
+        return aiChatRepository.findDistinctCategoriesByMemberId(memberId);
     }
 }

@@ -7,5 +7,6 @@ import lombok.Setter;
 @Setter
 public class AIChatRequest {
     private Integer member_id;
+    private Integer ai_chat_id;
     private String user_question;
 }

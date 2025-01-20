@@ -10,8 +10,8 @@ import lombok.*;
 @Table(name = "ai_chat")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA를 위한 기본 생성자
-@AllArgsConstructor(access = AccessLevel.PRIVATE)  // 빌더용 생성자
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class AIChat {
     @Id
@@ -30,7 +30,12 @@ public class AIChat {
 
     private String summary;
 
-    @ManyToOne
-    @JoinColumn(name = "memberId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false) // 외래 키 매핑
     private Member member;
+
+    public void setIsSavedQuestion(boolean newValue) {
+        System.out.println("세이브메서드 들어와짐? ");
+        this.isSavedQuestion = newValue;
+    }
 }
