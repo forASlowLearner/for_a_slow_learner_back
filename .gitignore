@@ -1,10 +1,19 @@
+# IDE 관련 파일
 .idea
-.DS_Store
-db.properties
-application.properties
 *.iml
 
+# macOS 관련 파일
+.DS_Store
+
+# 데이터베이스 설정 파일
+db.properties
+
+# 애플리케이션 설정 파일
+application.properties
+
+# Gradle 관련 파일
 .gradle/
 build/
 
+# Maven 관련 파일
 target/
