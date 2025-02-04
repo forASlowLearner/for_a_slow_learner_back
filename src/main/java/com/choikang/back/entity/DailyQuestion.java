@@ -1,15 +1,13 @@
 package com.choikang.back.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Data;
+
+import java.time.LocalDate;
 
 @Data
 @Entity
+@Table(name = "daily_question")
 public class DailyQuestion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,9 +15,11 @@ public class DailyQuestion {
 
     private String dailyQuestion;
 
-    private boolean dailyQuestionAnswer;
+    private Integer dailyQuestionAnswer;
 
-    @ManyToOne
-    @JoinColumn(name = "memberId")
+    private LocalDate dailyQuestionDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false) // 외래 키 매핑
     private Member member;
 }
