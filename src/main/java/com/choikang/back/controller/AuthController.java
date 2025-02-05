@@ -206,4 +206,33 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    // 프론트에서 전달한 JWT 토큰을 헤더에서 추출해 memberId를 반환하는 API
+    @GetMapping(value = "/api/get-member-id", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> getMemberId(
+            @RequestHeader(name = "Authorization", required = false) String authHeader) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                response.put("message", "인증 토큰이 존재하지 않거나 형식이 올바르지 않습니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+            // 토큰 문자열에서 "Bearer " 접두어 제거
+            String token = authHeader.replace("Bearer ", "");
+
+            // JWTUtil을 사용하여 토큰에서 memberID 추출
+            String subject = jwtUtil.getUserInfoFromToken(token);
+
+            // 2. 회원 ID 추출
+            Long memberId = Long.parseLong(subject.split(":")[0]);
+
+            // memberId가 추출된 경우 응답 구성
+            response.put("member_id", memberId);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("message", "토큰 검증 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+    }
 }
